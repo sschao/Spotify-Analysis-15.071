@@ -1,6 +1,8 @@
 #read data from desktop
-data_songs <- read.csv("~/Desktop/song_data.csv")
-data_info <- read.csv("~/Desktop/song_info.csv")
+data_dir <- "~/Github/Spotify-Analysis-15.071/19000-spotify-songs"
+
+data_songs <- read.csv(paste(data_dir, "/song_data.csv", sep=""))
+data_info <- read.csv(paste(data_dir, "/song_info.csv", sep=""))
 
 
 #group by song in the data_songs dataset
@@ -9,6 +11,7 @@ data_info <- read.csv("~/Desktop/song_info.csv")
 #replace by new columns (eg avg_song_popularity)
 
 library(dplyr)
+library(ggplot2)
 data_songs_1 <- data_songs %>%
   group_by(song_name) %>%
   mutate(avg_song_popularity = mean(song_popularity),
@@ -41,7 +44,7 @@ data_songs_1 <- data_songs %>%
          audio_valence = NULL)
 
 #keep unique songs
-data <- unique(data_songs_1) 
+data <- unique(data_songs_1)
 #the two datasets (song_data and song_info) have 13070 unique songs
 length(unique(data_info$song_name))
 length(unique(data_songs$song_name))
@@ -62,8 +65,7 @@ ggplot(data = data) +
   theme_light()
 
 
-
-
+write.csv(data, file = paste(data_dir, "/cleaned_song_data.csv", sep=""))
 
 
 
