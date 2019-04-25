@@ -27,7 +27,7 @@ plot_coefs(model1)
 pred <- predict(model1, newdata = test)
 
 #transform predictions into sales
-pred_sales <- 10^(pred)*test$Income
+pred_sales <- 10^(pred)*test$Population
 #compute MAPE
 
 library(MLmetrics)
@@ -35,7 +35,7 @@ MAPE(pred_sales, test$Sales)
 mean(abs((test$Sales-pred_sales)/test$Sales) * 100)
 
 #predict future sales
-futu_data$Sales <- 10^(predict(model1, newdata = futu_data))*futu_data$Income
+futu_data$Sales <- 10^(predict(model1, newdata = futu_data))*futu_data$Population
 
 #find aggregate Sales
 #total online retail sales in the Northeast region from mid-2015 to end-2017
