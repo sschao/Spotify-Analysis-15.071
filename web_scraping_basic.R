@@ -1,18 +1,19 @@
 #load in the Rvest and magrittr package
-
 library(rvest)
 library(magrittr)
 library(dplyr)
 library(caret)
-#set dataframes aagain
-data_info <- read.csv("~/Desktop/song_info.csv")
-data_info$album_names <- gsub(" ", "_", data_info$album_names)
-albums <- as.vector(data_info$album_names)
+library(lubridate)
+library(httr)
+#set dataframes aagain(using dataframe created by spotify.R)
+
+data$album_names <- gsub(" ", "_", data$album_names)
+albums <- as.vector(unique(data$album_names))
 length(albums)
 
 #test this for random subset
-set.seed(345)
-r <- runif(200, 0, 12014)
+set.seed(512)
+r <- runif(500, 0, 12014)
 albums_rand <- albums[r]
 
 ##create functions
@@ -29,7 +30,7 @@ check_site <- function(link){
 #function to create link
 create_link <- function(i){
   wiki_link <-"https://en.wikipedia.org/wiki/" 
-  string <- toString(albums[i])
+  string <- toString(albums_rand[i])
   link <-paste(wiki_link, string, sep = "") 
   paste(link)
 }
@@ -54,15 +55,14 @@ get_date <- function(webpage){
   
 }
 
-#new version of web scraping
+#new
 date_per_song <- vector()
 name <- vector()
-for (i in seq(1,length(albums_rand)){
+for (i in seq(1,length(albums_rand))){
   print(i)
   string <- toString(albums_rand[i])
   #create link
   link <- create_link(i)
-  print(link)
   #check if link is valid
   status <- check_site(link)
   #create valid webpage
@@ -71,10 +71,10 @@ for (i in seq(1,length(albums_rand)){
     date_per_song[i] <- get_date(webpage)[[1]]
     if (get_date(webpage)[[1]] == "not found"){
       link <- paste(link, "_(album)", sep= "")
-      print(link)
+      #print(link)
       #check if new link is valid
       status <- check_site(link)
-      print(status)
+      #print(status)
       #create valid webpage
       if(status != 404 & status != 400){
         webpage <- read_html(link)
@@ -88,24 +88,55 @@ for (i in seq(1,length(albums_rand)){
     }
 }
 
-print(date_per_song) 
+name[489]
+albums_rand[489]
 
+print(date_per_song) 
+#check accuracy of web scraping
 j <- 0
-for (i in seq(1,200)){
+for (i in seq(1,length(albums_rand))){
   if (date_per_song[[i]] == "not found"){
     j <- j + 1 
   }
 }
-print(j/200) 
+print(j/length(albums_rand)) 
+
+#clean date
+#take out parenthesis
+date <- vector()
+date_cleaned <- vector()
+for (i in seq(1, length(albums_rand))){
+  if (date_per_song[i] != "not found"){
+    date_cleaned[i] <- gsub("\\s*\\([^\\)]+\\)","",date_per_song[[i]])
+    date[i] <- as.character(mdy(date_cleaned[i]))
+  }else{
+    date_cleaned[i] <- "not found"
+    date[i] <- "not found"
+  }
+}
+  
+#create data with name and date  
+date_name_data <- data.frame(gsub(" ", "_", name),date)
+colnames(date_name_data)<- c("album_names", "song_date")
+#data_info$playlist <-NULL
+#data_info <- unique(data_info)
+#merge it with original dataset
+merged <- merge(date_name_data,data,by="album_names",all=TRUE)
+merged<- unique(merged)
+merged <- merged %>%
+  group_by(album_names) %>%
+  slice(1)
 
 
 
-#example
+
+
+
 #####
 #####
 #####
 #read HTML code from the website
-webpage <- read_html("https://en.wikipedia.org/wiki/Come_What[ever]_May")
+webpage <- check_site("https://en.wikipedia.org/wiki/By_The_Way_(Deluxe_Version)")
 
 
 table <- webpage %>%
