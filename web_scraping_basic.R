@@ -1,4 +1,3 @@
-
 #load in the Rvest and magrittr package
 
 library(rvest)
@@ -8,39 +7,37 @@ library(caret)
 #set dataframes aagain
 data_info <- read.csv("~/Desktop/song_info.csv")
 data_info$album_names <- gsub(" ", "_", data_info$album_names)
-#create vector with unique names of albums
-albums <- as.vector(unique(data_info$album_names))
+albums <- as.vector(data_info$album_names)
 length(albums)
 
 #test this for random subset
-set.seed(666)
+set.seed(345)
 r <- runif(200, 0, 12014)
 albums_rand <- albums[r]
 
-#initialize
-date_per_song <- vector()
-name <- vector()
+##create functions
+###
+###
+##
 
-for (i in seq(1,200)){
-  print(i)
-  #create link
-  wiki_link <-"https://en.wikipedia.org/wiki/" 
-  string <- toString(albums_rand[i])
-  link <-paste(wiki_link, string, sep = "") 
-  library(httr)
-  #check if link is valid
+#function to check if site is valid
+check_site <- function(link){
   check <- GET(link)
   status <- status_code(check)
-  if(status != 404 & status != 400){
-    webpage <- read_html(link)
-  }
-  else{
-    date_per_song[i] <- "not found"
-    name[i] <- string
-    next # jump to next iteration
-  }
+}
+
+#function to create link
+create_link <- function(i){
+  wiki_link <-"https://en.wikipedia.org/wiki/" 
+  string <- toString(albums[i])
+  link <-paste(wiki_link, string, sep = "") 
+  paste(link)
+}
+
+
+#function to extract date
+get_date <- function(webpage){
   
-  #make table of scraped data based on square box that wiki has on the right
   table <- webpage %>%
     html_nodes("table.haudio") %>%
     html_table(header=F, fill = T)
@@ -52,19 +49,54 @@ for (i in seq(1,200)){
     #add the table to a dataframe
     dict <- as.data.frame(table)
     date_per_song[i] <- subset(dict, dict$X1 == "Released", select = c(X2)) 
-    name[i] <- string
+
   }
   
 }
 
-#check accuracy
+#new version of web scraping
+date_per_song <- vector()
+name <- vector()
+for (i in seq(1,length(albums_rand)){
+  print(i)
+  string <- toString(albums_rand[i])
+  #create link
+  link <- create_link(i)
+  print(link)
+  #check if link is valid
+  status <- check_site(link)
+  #create valid webpage
+  if(status != 404 & status != 400){
+    webpage <- read_html(link)
+    date_per_song[i] <- get_date(webpage)[[1]]
+    if (get_date(webpage)[[1]] == "not found"){
+      link <- paste(link, "_(album)", sep= "")
+      print(link)
+      #check if new link is valid
+      status <- check_site(link)
+      print(status)
+      #create valid webpage
+      if(status != 404 & status != 400){
+        webpage <- read_html(link)
+        date_per_song[i] <- get_date(webpage)[[1]]
+      }
+    }
+    name[i] <- string
+    }else { 
+    date_per_song[i] <- "not found"
+    name[i] <- string
+    }
+}
+
+print(date_per_song) 
+
 j <- 0
 for (i in seq(1,200)){
   if (date_per_song[[i]] == "not found"){
     j <- j + 1 
   }
 }
-print(j/200)
+print(j/200) 
 
 
 
