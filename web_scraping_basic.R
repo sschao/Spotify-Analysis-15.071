@@ -8,6 +8,7 @@ library(caret)
 #set dataframes aagain
 data_info <- read.csv("~/Desktop/song_info.csv")
 data_info$album_names <- gsub(" ", "_", data_info$album_names)
+#create vector with unique names of albums
 albums <- as.vector(unique(data_info$album_names))
 length(albums)
 
@@ -16,8 +17,10 @@ set.seed(666)
 r <- runif(200, 0, 12014)
 albums_rand <- albums[r]
 
+#initialize
 date_per_song <- vector()
 name <- vector()
+
 for (i in seq(1,200)){
   print(i)
   #create link
@@ -37,7 +40,7 @@ for (i in seq(1,200)){
     next # jump to next iteration
   }
   
-  #make table of scraped data
+  #make table of scraped data based on square box that wiki has on the right
   table <- webpage %>%
     html_nodes("table.haudio") %>%
     html_table(header=F, fill = T)
@@ -54,6 +57,7 @@ for (i in seq(1,200)){
   
 }
 
+#check accuracy
 j <- 0
 for (i in seq(1,200)){
   if (date_per_song[[i]] == "not found"){
