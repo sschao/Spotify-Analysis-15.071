@@ -5,15 +5,18 @@ data_songs <- read.csv(paste(data_dir, "/song_data.csv", sep=""))
 data_info <- read.csv(paste(data_dir, "/song_info.csv", sep=""))
 
 
-#group by song in the data_songs dataset
+unique(data_songs$song_name == data_info$song_name)
+
+data_songs$album_names <- data_info$album_names
+#group by song and albumin the data_songs dataset
 #average the songs characteristics
 #delete old columns
 #replace by new columns (eg avg_song_popularity)
+#keep only the first song when songs have the same name (even form different albums)
 
 library(dplyr)
-library(ggplot2)
 data_songs_1 <- data_songs %>%
-  group_by(song_name) %>%
+  group_by( album_names, song_name) %>%
   mutate(avg_song_popularity = mean(song_popularity),
           avg_song_duration_ms = mean(song_duration_ms),
           avg_acousticness = mean(acousticness),
@@ -41,10 +44,13 @@ data_songs_1 <- data_songs %>%
          speechiness = NULL,
          tempo = NULL,
          time_signature = NULL,
-         audio_valence = NULL)
+         audio_valence = NULL)%>%
+  ungroup() %>%
+  group_by(album_names) %>%
+  slice(1)
 
 #keep unique songs
-data <- unique(data_songs_1)
+data <- unique(data_songs_1) 
 #the two datasets (song_data and song_info) have 13070 unique songs
 length(unique(data_info$song_name))
 length(unique(data_songs$song_name))
@@ -59,6 +65,7 @@ try3 <- subset(data, song_name == "Sex on Fire")
 
 #visuals
 hist(data$avg_song_popularity, breaks  = 100) 
+library(ggplot2)
 ggplot(data = data) +
   geom_bar(mapping = aes(x = avg_song_popularity), stat = "count", width = 0.8, fill = "gray", color = "blue") + 
   labs(x = "Average Popularity", y = "# of Songs", title = " # of Songs by Average Popularity") +
