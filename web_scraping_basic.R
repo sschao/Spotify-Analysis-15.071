@@ -103,6 +103,7 @@ print(j/length(albums_rand))
 
 #clean date
 #take out parenthesis
+# some dates we have obtained turn into NA values
 date <- vector()
 date_cleaned <- vector()
 for (i in seq(1, length(albums_rand))){
