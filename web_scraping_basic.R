@@ -13,7 +13,7 @@ length(albums)
 
 #test this for random subset
 set.seed(512)
-r <- runif(500, 0, 12014)
+r <- runif(500, 0, length(albums)
 albums_rand <- albums[r]
 
 ##create functions
