@@ -1,9 +1,6 @@
 #read data from desktop
-data_dir <- "~/Github/Spotify-Analysis-15.071/19000-spotify-songs"
-
-data_songs <- read.csv(paste(data_dir, "/song_data.csv", sep=""))
-data_info <- read.csv(paste(data_dir, "/song_info.csv", sep=""))
-
+data_songs <- read.csv("~/Desktop/song_data.csv")
+data_info <- read.csv("~/Desktop/song_info.csv")
 
 unique(data_songs$song_name == data_info$song_name)
 
@@ -16,7 +13,7 @@ data_songs$album_names <- data_info$album_names
 
 library(dplyr)
 data_songs_1 <- data_songs %>%
-  group_by( album_names, song_name) %>%
+  group_by(album_names, song_name) %>%
   mutate(avg_song_popularity = mean(song_popularity),
           avg_song_duration_ms = mean(song_duration_ms),
           avg_acousticness = mean(acousticness),
@@ -46,7 +43,8 @@ data_songs_1 <- data_songs %>%
          time_signature = NULL,
          audio_valence = NULL)%>%
   ungroup() %>%
-  group_by(album_names) %>%
+  group_by(song_name) %>%
+  mutate(avg_song_popularity = max(avg_song_popularity)) %>%
   slice(1)
 
 #keep unique songs
