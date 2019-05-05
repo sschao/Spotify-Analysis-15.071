@@ -1,16 +1,30 @@
 library(caret)
+#use dataset called "data" for training and testing models
 #split dataset
-set.seed(121)
-split <- createDataPartition(data$avg_song_popularity, p = 0.7, list = FALSE)
+set.seed(156)
+split <- createDataPartition(data$avg_song_popularity, p = 0.8, list = FALSE)
 data.train <- data[split,]
 data.test <- data[-split,]
+#fidn mean and sd of avg_song_popularity
+#mu <- mean(data$avg_song_popularity)
+#sd <- sd(data$avg_song_popularity)
+#change avg song popularity to classes "low", "mid", "high"
+#data$avg_song_popularity <- ifelse(data$avg_song_popularity > mu + sd, "high", 
+             # ifelse(data$avg_song_popularity < mu - sd, "low", "mid"))
+
+#str(data)
+#data$avg_song_popularity <- as.factor(data$avg_song_popularity )
+#data.train <- data[split,]
+#data.test <- data[-split,]
+
 #run rf model with cross validation
-rf.cv <- train(y =  data$avg_song_popularity,
-               x = subset(data, select=-c(avg_song_popularity, song_name)),
+rf.cv <- train(y =  data.train$avg_song_popularity,
+               x = subset(data.train, select=-c(avg_song_popularity, song_name, album_names)),
                method="rf", ntree=100, nodesize = 20,
                trControl=trainControl(method="cv", number=5),
-               tuneGrid=data.frame(mtry=seq(1,6,1)),
+               tuneGrid=data.frame(mtry=seq(1,8,1)),
                importance = T)
+
 
 
 library(rpart.plot)
@@ -58,5 +72,7 @@ RMSE
 plot(data.test$avg_song_popularity, col = "red", main = "Actual vs Fitted (RF)" )
 lines(pred.test, type = "p", col = "blue")
 legend(legend = c("Actual","Fitted"), fill = c("red","blue"), "topright", cex = 0.5)
+
+
 
 
