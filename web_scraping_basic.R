@@ -6,14 +6,14 @@ library(caret)
 library(lubridate)
 library(httr)
 #set dataframes aagain(using dataframe created by spotify.R)
-
+#make into one word with underscore
 data$album_names <- gsub(" ", "_", data$album_names)
 albums <- as.vector(unique(data$album_names))
 length(albums)
 
 #test this for random subset
-set.seed(512)
-r <- runif(500, 0, length(albums)
+set.seed(456)
+r <- runif(500, 0, length(albums))
 albums_rand <- albums[r]
 
 ##create functions
@@ -56,6 +56,7 @@ get_date <- function(webpage){
 }
 
 #new
+#run with length(albums) instead of length(albums_rand) to get result for all albums
 date_per_song <- vector()
 name <- vector()
 for (i in seq(1,length(albums_rand))){
@@ -103,7 +104,6 @@ print(j/length(albums_rand))
 
 #clean date
 #take out parenthesis
-# some dates we have obtained turn into NA values
 date <- vector()
 date_cleaned <- vector()
 for (i in seq(1, length(albums_rand))){
@@ -119,39 +119,19 @@ for (i in seq(1, length(albums_rand))){
 #create data with name and date  
 date_name_data <- data.frame(gsub(" ", "_", name),date)
 colnames(date_name_data)<- c("album_names", "song_date")
+#if NA then put "not found"
+date_name_data$song_date[is.na(date_name_data$song_date)] <- "not found"
+
+
 #data_info$playlist <-NULL
 #data_info <- unique(data_info)
 #merge it with original dataset
 merged <- merge(date_name_data,data,by="album_names",all=TRUE)
 merged<- unique(merged)
-merged <- merged %>%
-  group_by(album_names) %>%
-  slice(1)
+#that dataset will be used for time series analysis once it is completed
 
 
 
 
 
 
-#####
-#####
-#####
-#read HTML code from the website
-webpage <- check_site("https://en.wikipedia.org/wiki/By_The_Way_(Deluxe_Version)")
-
-
-table <- webpage %>%
-  html_nodes("table.haudio") %>%
-  html_table(header=F, fill = T)
-
-table <- table[[1]]
-
-#add the table to a dataframe
-dict <- as.data.frame(table)
-date_per_song <- subset(dict, dict$X1 == "Released", select = c(X2)) 
-
-
-#check if site is valid
-check <- GET("https://en.wikipedia.org/wiki/Come_What[ever]_May")
-status <- status_code(check)
-status == 400
