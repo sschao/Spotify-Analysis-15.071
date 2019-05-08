@@ -1,3 +1,9 @@
+#this file runs regression model on all musical feature
+#creates a function which given a vector of current featurs predicts features of next year
+#most featurs cannot be predicted with high R2 using linear model
+
+
+
 #drop song, artist, popularity, album columns
 data_4 <- data3[!(colnames(data3) %in% c("song_name", "album_names", "artist", "avg_song_popularity"))]
 
