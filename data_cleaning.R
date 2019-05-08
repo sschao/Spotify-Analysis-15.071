@@ -34,19 +34,19 @@ library(dplyr)
 data_songs_1 <- data_songs %>%
   group_by(song_name, artist) %>%
   mutate(avg_song_popularity = mean(song_popularity),
-          avg_song_duration_ms = mean(song_duration_ms),
-          avg_acousticness = mean(acousticness),
-          avg_danceability = mean(danceability),
-          avg_energy = mean(energy),
-          avg_instrumentalness = mean(instrumentalness), 
-          avg_key = mean(key),
-          avg_liveness = mean(liveness),
-          avg_loudness = mean(loudness),
-          avg_audiomode = mean(audio_mode),
-          avg_speechiness = mean(speechiness),
-          avg_tempo = mean(tempo),
-          avg_time_signature = mean(time_signature),
-          avg_audio_valence = mean(audio_valence),
+         avg_song_duration_ms = mean(song_duration_ms),
+         avg_acousticness = mean(acousticness),
+         avg_danceability = mean(danceability),
+         avg_energy = mean(energy),
+         avg_instrumentalness = mean(instrumentalness), 
+         avg_key = mean(key),
+         avg_liveness = mean(liveness),
+         avg_loudness = mean(loudness),
+         avg_audiomode = mean(audio_mode),
+         avg_speechiness = mean(speechiness),
+         avg_tempo = mean(tempo),
+         avg_time_signature = mean(time_signature),
+         avg_audio_valence = mean(audio_valence),
          song_popularity = NULL,
          song_duration_ms = NULL,
          acousticness = NULL,
@@ -68,12 +68,13 @@ data_songs_1 <- data_songs %>%
          slice(1)
 
 
+
 data <- data_songs_1
 
 #test
 try1 <- subset(data_songs, song_name == "Sex on Fire")
 try2 <- subset(data_info, song_name == "Sex on Fire")
-try3 <- subset(data1, song_name == "Sex on Fire")
+try3 <- subset(data, song_name == "Sex on Fire")
 
 #visuals
 hist(data$avg_song_popularity, breaks  = 100) 
